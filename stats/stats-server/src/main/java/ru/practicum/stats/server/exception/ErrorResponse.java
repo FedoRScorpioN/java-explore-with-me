@@ -1,4 +1,4 @@
-package ru.practicum.stats.server;
+package ru.practicum.stats.server.exception;
 
 import lombok.Getter;
 
