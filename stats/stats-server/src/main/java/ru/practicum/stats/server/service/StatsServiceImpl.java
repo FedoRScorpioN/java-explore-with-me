@@ -16,20 +16,23 @@ public class StatsServiceImpl implements StatsService {
 
     @Override
     public void saveHit(EndpointHitDto hitDto) {
-        statsRepository.save(EndpointHitMapper.INSTANCE.toEndpointHit(hitDto));
+        statsRepository.save(EndpointHitMapper.getInstance().toEndpointHit(hitDto));
     }
 
     @Override
     public List<ViewStatsDto> getViewStats(LocalDateTime start, LocalDateTime end, String[] uris, Boolean unique) {
-        if (unique && uris != null && uris.length > 0) {
-            return statsRepository.getUniqueViewStatsByUris(start, end, uris);
-        }
         if (unique) {
-            return statsRepository.getUniqueViewStats(start, end);
+            if (uris != null && uris.length > 0) {
+                return statsRepository.getUniqueViewStatsByUris(start, end, uris);
+            } else {
+                return statsRepository.getUniqueViewStats(start, end);
+            }
+        } else {
+            if (uris != null && uris.length > 0) {
+                return statsRepository.getViewStatsByUris(start, end, uris);
+            } else {
+                return statsRepository.getViewStats(start, end);
+            }
         }
-        if (uris != null && uris.length > 0) {
-            return statsRepository.getViewStatsByUris(start, end, uris);
-        }
-        return statsRepository.getViewStats(start, end);
     }
 }
