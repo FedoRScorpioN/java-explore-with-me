@@ -1,5 +1,6 @@
 package ru.practicum.stats.server.model;
 
+import com.sun.istack.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -21,10 +22,13 @@ public class EndpointHit {
     @NotBlank
     @Column(length = 255, nullable = false)
     String app;
-    @Column(length = 255)
+    @NotBlank
+    @Column(length = 255, nullable = false)
     String uri;
-    @Column(length = 255)
+    @NotBlank
+    @Column(length = 50, nullable = false)
     String ip;
-    @Column(updatable = false)
+    @NotNull
+    @Column(name = "TIME_REQUEST", updatable = false, nullable = false)
     LocalDateTime timestamp;
 }

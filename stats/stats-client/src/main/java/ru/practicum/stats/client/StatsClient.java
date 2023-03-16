@@ -12,6 +12,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.stats.dto.EndpointHitDto;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -20,20 +21,20 @@ import java.time.LocalDateTime;
 @Service
 @Getter
 public final class StatsClient extends BaseClient {
-    private final String application;
-    private final String statsServiceUri;
-    private final ObjectMapper json;
+    private final String applicationUrl;
+    private final String statsServiceUrl;
+    private final ObjectMapper jsonMapper;
     private final HttpClient httpClient;
 
     @Autowired
     public StatsClient(@Value("http://localhost:9090")
-                       String application, String statsServiceUri, ObjectMapper json, RestTemplateBuilder builder) {
-        super(builder.uriTemplateHandler(new DefaultUriBuilderFactory(statsServiceUri))
+                       String applicationUrl, String statsServiceUrl, ObjectMapper jsonMapper, RestTemplateBuilder builder) {
+        super(builder.uriTemplateHandler(new DefaultUriBuilderFactory(statsServiceUrl))
                 .requestFactory(HttpComponentsClientHttpRequestFactory::new)
                 .build());
-        this.application = application;
-        this.statsServiceUri = statsServiceUri;
-        this.json = json;
+        this.applicationUrl = applicationUrl;
+        this.statsServiceUrl = statsServiceUrl;
+        this.jsonMapper = jsonMapper;
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(2))
                 .build();
@@ -41,7 +42,7 @@ public final class StatsClient extends BaseClient {
 
     public void hit(HttpServletRequest userRequest) {
         EndpointHitDto hit = EndpointHitDto.builder()
-                .app(application)
+                .app(URI.create(applicationUrl).getHost())
                 .ip(userRequest.getRemoteAddr())
                 .uri(userRequest.getRequestURI())
                 .timestamp(LocalDateTime.now())
