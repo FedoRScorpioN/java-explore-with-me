@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 public class BaseClient {
-    private final RestTemplate rest;
+    protected final RestTemplate rest;
 
     public BaseClient(RestTemplate rest) {
         this.rest = rest;
