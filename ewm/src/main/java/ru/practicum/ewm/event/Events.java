@@ -39,7 +39,7 @@ public class Events {
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime createdOn;
-    @Column(length = 10000)
+    @Column(nullable = false, length = 10000)
     private String description;
     @Column(nullable = false)
     private LocalDateTime eventDate;
@@ -50,7 +50,7 @@ public class Events {
     private Location location;
     @Column(nullable = false)
     private Boolean paid;
-    @Column
+    @Column(nullable = false)
     private Integer participantLimit;
     @Column
     private LocalDateTime publishedOn;

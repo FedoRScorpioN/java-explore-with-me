@@ -21,7 +21,11 @@ public class UsersServiceImpl implements UsersService {
         Users users = UsersMapper.getInstance().toUser(userDto);
         UsersDto newUser;
         try {
-            newUser = UsersMapper.toUserDto(usersRepository.save(users));
+            Users savedUser = usersRepository.save(users);
+            if (savedUser == null) {
+                throw new NullPointerException("Значение не может быть равно NULL");
+            }
+            newUser = UsersMapper.toUserDto(savedUser);
         } catch (DataIntegrityViolationException e) {
             throw new ConflictException("Ошибка при создании пользователя. Повторите позднее.");
         }
@@ -33,9 +37,8 @@ public class UsersServiceImpl implements UsersService {
         Pageable pageable = PageRequest.of(from, size);
         if (ids != null && ids.size() > 0) {
             return UsersMapper.getInstance().toUserDto(usersRepository.findByIdIn(ids, pageable));
-        } else {
-            return UsersMapper.getInstance().toUserDto(usersRepository.findAll(pageable).getContent());
         }
+        return UsersMapper.getInstance().toUserDto(usersRepository.findAll(pageable).getContent());
     }
 
     @Override

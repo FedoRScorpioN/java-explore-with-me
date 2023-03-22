@@ -1,9 +1,9 @@
 package ru.practicum.ewm.category;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.event.EventsRepository;
 import ru.practicum.ewm.exception.ConflictException;
@@ -22,19 +22,18 @@ public class CategoriesServiceImpl implements CategoriesService {
     @Override
     public CategoriesDto addCategory(final NewCategoriesDto categoryDto) {
         Categories categories = CategoriesMapper.getInstance().toCategory(categoryDto);
-        Categories createdCategories;
         try {
-            createdCategories = categoriesRepository.save(categories);
+            Categories createdCategories = categoriesRepository.save(categories);
+            return CategoriesMapper.getInstance().toCategoryDto(createdCategories);
         } catch (DataIntegrityViolationException e) {
             throw new ConflictException(NOT_UNIQUE);
         }
-        return CategoriesMapper.getInstance().toCategoryDto(createdCategories);
     }
 
     @Override
     public Collection<CategoriesDto> findCategories(Integer from, Integer size) {
-        Pageable pageable = PageRequest.of(from, size);
-        return CategoriesMapper.getInstance().toCategoryDto(categoriesRepository.findAll(pageable).getContent());
+        return CategoriesMapper.getInstance().toCategoryDto(categoriesRepository
+                .findAll(PageRequest.of(from, size)).getContent());
     }
 
     @Override
@@ -42,13 +41,12 @@ public class CategoriesServiceImpl implements CategoriesService {
         Categories categoriesToUpdate = categoriesRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND));
         categoriesToUpdate.setName(categoryDto.getName());
-        Categories updatedCategories;
         try {
-            updatedCategories = categoriesRepository.save(categoriesToUpdate);
+            Categories updatedCategories = categoriesRepository.save(categoriesToUpdate);
+            return CategoriesMapper.getInstance().toCategoryDto(updatedCategories);
         } catch (DataIntegrityViolationException e) {
             throw new ConflictException(NOT_UNIQUE);
         }
-        return CategoriesMapper.getInstance().toCategoryDto(updatedCategories);
     }
 
     @Override

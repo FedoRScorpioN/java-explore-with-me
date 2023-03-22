@@ -11,9 +11,6 @@
     </parent>
 
     <artifactId>stats-client</artifactId>
-<!--    <version>0.0.1-SNAPSHOT</version>-->
-<!--    <name>stats-client</name>-->
-<!--    <description>stats-client</description>-->
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>

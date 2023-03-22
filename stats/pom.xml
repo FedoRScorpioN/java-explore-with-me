@@ -10,9 +10,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-<!--    <groupId>ru.practicum.stats</groupId>-->
     <artifactId>ewm-stats-service</artifactId>
-<!--    <version>0.0.1-SNAPSHOT</version>-->
     <packaging>pom</packaging>
 
     <modules>

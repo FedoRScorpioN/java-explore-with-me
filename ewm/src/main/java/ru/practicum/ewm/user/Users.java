@@ -20,6 +20,6 @@ public class Users {
     private String name;
     @Email(message = "Поле 'email' должно содержать корректный email-адрес.")
     @NotEmpty(message = "Поле 'email' не может быть пустым.")
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 320)
     private String email;
 }
