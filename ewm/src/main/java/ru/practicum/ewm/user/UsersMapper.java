@@ -1,5 +1,6 @@
 package ru.practicum.ewm.user;
 
+import ru.practicum.ewm.comment.CommentsFullDto;
 import ru.practicum.ewm.event.EventsFullDto;
 import ru.practicum.ewm.event.EventsShortDto;
 
@@ -49,5 +50,21 @@ public class UsersMapper {
         return users.stream()
                 .map(UsersMapper::toUserDto)
                 .collect(Collectors.toUnmodifiableList());
+    }
+
+    public static EventsFullDto.CommentInnerDto.UserDto toCommentShortUserInnerDto(Users user) {
+        EventsFullDto.CommentInnerDto.UserDto userDto = new EventsFullDto.CommentInnerDto.UserDto();
+        userDto.setId(user.getId());
+        userDto.setName(user.getName());
+        userDto.setEmail(user.getEmail());
+        return userDto;
+    }
+
+    public static CommentsFullDto.UsersDto toCommentFullUserInnerDto(Users user) {
+        CommentsFullDto.UsersDto usersDto = new CommentsFullDto.UsersDto();
+        usersDto.setId(user.getId());
+        usersDto.setName(user.getName());
+        usersDto.setEmail(user.getEmail());
+        return usersDto;
     }
 }

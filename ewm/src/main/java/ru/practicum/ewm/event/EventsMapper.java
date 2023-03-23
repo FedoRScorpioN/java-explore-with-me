@@ -2,10 +2,12 @@ package ru.practicum.ewm.event;
 
 import ru.practicum.ewm.category.Categories;
 import ru.practicum.ewm.category.CategoriesMapper;
+import ru.practicum.ewm.comment.CommentsMapper;
 import ru.practicum.ewm.compilation.CompilationsDto;
 import ru.practicum.ewm.user.Users;
 import ru.practicum.ewm.user.UsersMapper;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,7 +35,7 @@ public class EventsMapper {
         events.setRequestModeration(eventDto.getRequestModeration());
         events.setTitle(eventDto.getTitle());
         events.setInitiator(initiator);
-        events.setState(EventState.PENDING);
+        events.setState(EventsState.PENDING);
         return events;
     }
 
@@ -55,6 +57,11 @@ public class EventsMapper {
         eventDto.setState(events.getState());
         eventDto.setTitle(events.getTitle());
         eventDto.setViews(views == null ? 0 : views);
+        if (events.getComments() == null) {
+            eventDto.setComments(new ArrayList<>());
+        } else {
+            eventDto.setComments(CommentsMapper.getInstance().toCommentShortInnerDto(events.getComments()));
+        }
         return eventDto;
     }
 
