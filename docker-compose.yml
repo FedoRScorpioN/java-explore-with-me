@@ -1,4 +1,4 @@
-version: '3.1'
+version: '3.8'
 services:
   stats-server:
     build: ./stats/stats-server
@@ -31,9 +31,10 @@ services:
       - stats-server
       - ewmDB
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewmDB:5433/ewmDB
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewmDB:5432/ewmDB
       - SPRING_DATASOURCE_USERNAME=admin
       - SPRING_DATASOURCE_PASSWORD=password
+      - EWM-STATS-SERVICE_URI=http://stats-server:9090
 
   ewmDB:
     image: postgres:14-alpine
