@@ -44,6 +44,7 @@ public class EventsFullDto {
         private Long id;
         private String name;
     }
+
     @Setter
     @Getter
     public static class CommentInnerDto {
