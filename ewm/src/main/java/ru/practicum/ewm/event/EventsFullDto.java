@@ -26,7 +26,7 @@ public class EventsFullDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime publishedOn;
     private Boolean requestModeration;
-    private EventsState state;
+    private EventState state;
     private String title;
     private Long views;
     private Collection<CommentInnerDto> comments;

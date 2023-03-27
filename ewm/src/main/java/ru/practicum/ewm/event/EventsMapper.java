@@ -35,7 +35,7 @@ public class EventsMapper {
         events.setRequestModeration(eventDto.getRequestModeration());
         events.setTitle(eventDto.getTitle());
         events.setInitiator(initiator);
-        events.setState(EventsState.PENDING);
+        events.setState(EventState.PENDING);
         return events;
     }
 

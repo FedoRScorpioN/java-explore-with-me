@@ -1,5 +1,5 @@
 package ru.practicum.ewm.event;
 
-public enum EventsState {
+public enum EventState {
     PENDING, PUBLISHED, CANCELED
 }

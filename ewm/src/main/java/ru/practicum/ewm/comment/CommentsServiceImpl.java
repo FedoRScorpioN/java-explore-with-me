@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.event.Events;
 import ru.practicum.ewm.event.EventsRepository;
-import ru.practicum.ewm.event.EventsState;
+import ru.practicum.ewm.event.EventState;
 import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.user.Users;
@@ -29,7 +29,7 @@ public class CommentsServiceImpl implements CommentsService {
                 .orElseThrow(() -> new NotFoundException(NOT_EVENT));
         Users users = usersRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(NOT_USER));
-        if (events.getState() == EventsState.PENDING) {
+        if (events.getState() == EventState.PENDING) {
             throw new ConflictException("Невозможно добавить комментарий к событию, которое не опубликовано.");
         }
         Comments comments = CommentsMapper.getInstance().toComment(commentDto, users, events);

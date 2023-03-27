@@ -88,7 +88,7 @@ public class EventsServiceImpl implements EventsService {
         }
         if (states != null && states.length > 0) {
             expression = expression.and(qEvent.state.in(Arrays.stream(states)
-                    .map(EventsState::valueOf)
+                    .map(EventState::valueOf)
                     .collect(Collectors.toUnmodifiableList())));
         }
         if (categories != null && categories.length > 0) {
@@ -117,7 +117,7 @@ public class EventsServiceImpl implements EventsService {
                                                  Integer size) {
         Pageable pageable = PageRequest.of(from, size);
         QEvents qEvent = QEvents.events;
-        BooleanExpression expression = qEvent.state.eq(EventsState.PUBLISHED);
+        BooleanExpression expression = qEvent.state.eq(EventState.PUBLISHED);
         if (text != null) {
             expression = expression.and(qEvent.annotation.containsIgnoreCase(text).or(qEvent.description.containsIgnoreCase(text)));
         }
@@ -144,7 +144,7 @@ public class EventsServiceImpl implements EventsService {
                 && updateRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
             throw new ConflictException(INCORRECT_TIME);
         }
-        if (eventToUpdate.getState() == EventsState.PUBLISHED) {
+        if (eventToUpdate.getState() == EventState.PUBLISHED) {
             throw new ConflictException("Невозможно обновить опубликованное мероприятие.");
         }
         if (!userId.equals(eventToUpdate.getInitiator().getId())) {
@@ -163,9 +163,9 @@ public class EventsServiceImpl implements EventsService {
                                 .getRequestModeration())),
                         Pair.of(req -> req.getStateAction() != null, evt -> {
                             if (StateUserAction.SEND_TO_REVIEW.equals(updateRequest.getStateAction())) {
-                                evt.setState(EventsState.PENDING);
+                                evt.setState(EventState.PENDING);
                             } else if (StateUserAction.CANCEL_REVIEW.equals(updateRequest.getStateAction())) {
-                                evt.setState(EventsState.CANCELED);
+                                evt.setState(EventState.CANCELED);
                             }
                         }),
                         Pair.of(req -> req.getTitle() != null, evt -> evt.setTitle(updateRequest.getTitle()))
@@ -189,16 +189,16 @@ public class EventsServiceImpl implements EventsService {
         }
         if (updateRequest.getStateAction() != null) {
             StateAdminAction stateAction = updateRequest.getStateAction();
-            EventsState eventsState = eventsToUpdate.getState();
-            if ((stateAction == StateAdminAction.PUBLISH_EVENT && eventsState != EventsState.PENDING)
-                    || (stateAction == StateAdminAction.REJECT_EVENT && eventsState == EventsState.PUBLISHED)) {
+            EventState eventState = eventsToUpdate.getState();
+            if ((stateAction == StateAdminAction.PUBLISH_EVENT && eventState != EventState.PENDING)
+                    || (stateAction == StateAdminAction.REJECT_EVENT && eventState == EventState.PUBLISHED)) {
                 throw new ConflictException(stateAction == StateAdminAction.PUBLISH_EVENT ?
                         "Конфликт с сервисом статистики." : "Невозможно отклонить опубликованное мероприятие.");
             }
             if (stateAction == StateAdminAction.PUBLISH_EVENT) {
-                eventsToUpdate.setState(EventsState.PUBLISHED);
+                eventsToUpdate.setState(EventState.PUBLISHED);
             } else if (stateAction == StateAdminAction.REJECT_EVENT) {
-                eventsToUpdate.setState(EventsState.CANCELED);
+                eventsToUpdate.setState(EventState.CANCELED);
             }
         }
         if (updateRequest.getAnnotation() != null) {

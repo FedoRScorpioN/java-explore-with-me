@@ -3,7 +3,7 @@ package ru.practicum.ewm.request;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import ru.practicum.ewm.event.EventsState;
+import ru.practicum.ewm.event.EventState;
 import ru.practicum.ewm.event.Events;
 import ru.practicum.ewm.event.EventsRepository;
 import ru.practicum.ewm.exception.ConflictException;
@@ -26,7 +26,7 @@ public class RequestsServiceImpl implements RequestsService {
     public ParticipationRequestsDto addRequest(Long userId, Long eventId) {
         usersRepository.findById(userId).orElseThrow(RuntimeException::new);
         Events events = eventsRepository.findById(eventId).orElseThrow(RuntimeException::new);
-        if (events.getState() != EventsState.PUBLISHED) {
+        if (events.getState() != EventState.PUBLISHED) {
             throw new ConflictException("Собитыие не создано или не опубликовано.");
         }
         if (userId.equals(events.getInitiator().getId())) {
