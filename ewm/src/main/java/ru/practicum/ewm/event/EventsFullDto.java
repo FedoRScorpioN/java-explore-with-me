@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 
 @Setter
 @Getter
@@ -28,6 +29,7 @@ public class EventsFullDto {
     private EventState state;
     private String title;
     private Long views;
+    private Collection<CommentInnerDto> comments;
 
     @Setter
     @Getter
@@ -41,5 +43,30 @@ public class EventsFullDto {
     public static class UserShortDto {
         private Long id;
         private String name;
+    }
+
+    @Setter
+    @Getter
+    public static class CommentInnerDto {
+
+        private Long id;
+
+        private String text;
+
+        private CommentInnerDto.UserDto author;
+
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        private LocalDateTime createdOn;
+
+        @Setter
+        @Getter
+        public static class UserDto {
+
+            private Long id;
+
+            private String name;
+
+            private String email;
+        }
     }
 }

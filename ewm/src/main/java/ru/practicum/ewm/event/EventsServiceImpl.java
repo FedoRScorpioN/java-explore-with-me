@@ -153,11 +153,14 @@ public class EventsServiceImpl implements EventsService {
         final Events updatedEvents = Stream.<Pair<Predicate<UpdateEventsUserRequest>, Consumer<Events>>>of(
                         Pair.of(req -> req.getAnnotation() != null, evt -> evt.setAnnotation(updateRequest.getAnnotation())),
                         Pair.of(req -> req.getDescription() != null, evt -> evt.setDescription(updateRequest.getDescription())),
-                        Pair.of(req -> req.getCategory() != null, evt -> evt.setCategories(CategoriesMapper.getInstance().toCategory(updateRequest.getCategory()))),
+                        Pair.of(req -> req.getCategory() != null, evt -> evt.setCategories(CategoriesMapper.getInstance()
+                                .toCategory(updateRequest.getCategory()))),
                         Pair.of(req -> req.getEventDate() != null, evt -> evt.setEventDate(updateRequest.getEventDate())),
                         Pair.of(req -> req.getLocation() != null, evt -> evt.setPaid(updateRequest.getPaid())),
-                        Pair.of(req -> req.getParticipantLimit() != null, evt -> evt.setParticipantLimit(updateRequest.getParticipantLimit())),
-                        Pair.of(req -> req.getRequestModeration() != null, evt -> evt.setRequestModeration(updateRequest.getRequestModeration())),
+                        Pair.of(req -> req.getParticipantLimit() != null, evt -> evt.setParticipantLimit(updateRequest
+                                .getParticipantLimit())),
+                        Pair.of(req -> req.getRequestModeration() != null, evt -> evt.setRequestModeration(updateRequest
+                                .getRequestModeration())),
                         Pair.of(req -> req.getStateAction() != null, evt -> {
                             if (StateUserAction.SEND_TO_REVIEW.equals(updateRequest.getStateAction())) {
                                 evt.setState(EventState.PENDING);
@@ -189,7 +192,8 @@ public class EventsServiceImpl implements EventsService {
             EventState eventState = eventsToUpdate.getState();
             if ((stateAction == StateAdminAction.PUBLISH_EVENT && eventState != EventState.PENDING)
                     || (stateAction == StateAdminAction.REJECT_EVENT && eventState == EventState.PUBLISHED)) {
-                throw new ConflictException(stateAction == StateAdminAction.PUBLISH_EVENT ? "Конфликт с сервисом статистики." : "Невозможно отклонить опубликованное мероприятие.");
+                throw new ConflictException(stateAction == StateAdminAction.PUBLISH_EVENT ?
+                        "Конфликт с сервисом статистики." : "Невозможно отклонить опубликованное мероприятие.");
             }
             if (stateAction == StateAdminAction.PUBLISH_EVENT) {
                 eventsToUpdate.setState(EventState.PUBLISHED);
