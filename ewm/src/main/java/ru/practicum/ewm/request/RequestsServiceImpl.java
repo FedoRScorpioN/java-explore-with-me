@@ -18,16 +18,17 @@ public class RequestsServiceImpl implements RequestsService {
     private static final String LIMIT_USERS = "Достигнут лимит участников.";
     private static final String NOT_REQUEST = "Заявка на участие не найдена.";
     private static final String NOT_USER = "Пользователь не найден.";
+    private static final String NOT_EVENT = "Событие не найдено.";
     private final RequestsRepository requestsRepository;
     private final UsersRepository usersRepository;
     private final EventsRepository eventsRepository;
 
     @Override
     public ParticipationRequestsDto addRequest(Long userId, Long eventId) {
-        usersRepository.findById(userId).orElseThrow(RuntimeException::new);
-        Events events = eventsRepository.findById(eventId).orElseThrow(RuntimeException::new);
+        usersRepository.findById(userId).orElseThrow(() -> new NotFoundException(NOT_USER));
+        Events events = eventsRepository.findById(eventId).orElseThrow(() -> new NotFoundException(NOT_EVENT));
         if (events.getState() != EventState.PUBLISHED) {
-            throw new ConflictException("Собитыие не создано или не опубликовано.");
+            throw new ConflictException("Событие не создано или не опубликовано.");
         }
         if (userId.equals(events.getInitiator().getId())) {
             throw new ConflictException("Вы не можете запросить участие в собственном мероприятии.");
