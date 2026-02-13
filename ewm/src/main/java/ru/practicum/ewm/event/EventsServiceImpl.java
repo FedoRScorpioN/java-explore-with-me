@@ -1,6 +1,5 @@
 package ru.practicum.ewm.event;
 
-import com.mysema.commons.lang.Pair;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -19,12 +18,9 @@ import ru.practicum.stats.dto.ViewStatsDto;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -48,9 +44,15 @@ public class EventsServiceImpl implements EventsService {
         List<ViewStatsDto> eventStats = statsClient.getStats(uris);
         return eventStats.stream()
                 .filter(statRecord -> statRecord.getApp().equals("ewm-service"))
+                .filter(statRecord -> {
+                    Pattern pattern = Pattern.compile("/events/([0-9]+)");
+                    Matcher matcher = pattern.matcher(statRecord.getUri());
+                    return matcher.find();
+                })
                 .collect(Collectors.toMap(statRecord -> {
-                                    Pattern pattern = Pattern.compile("/events/([0-9]*)");
+                                    Pattern pattern = Pattern.compile("/events/([0-9]+)");
                                     Matcher matcher = pattern.matcher(statRecord.getUri());
+                                    matcher.find();
                                     return Long.parseLong(matcher.group(1));
                                 },
                                 ViewStatsDto::getHits
@@ -139,7 +141,8 @@ public class EventsServiceImpl implements EventsService {
 
     @Override
     public EventsFullDto patchEventByInitiator(Long userId, Long eventId, UpdateEventsUserRequest updateRequest) {
-        final Events eventToUpdate = eventsRepository.findById(eventId).orElseThrow(RuntimeException::new);
+        final Events eventToUpdate = eventsRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException(NOT_EVENTS));
         if (updateRequest.getEventDate() != null
                 && updateRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
             throw new ConflictException(INCORRECT_TIME);
@@ -150,32 +153,44 @@ public class EventsServiceImpl implements EventsService {
         if (!userId.equals(eventToUpdate.getInitiator().getId())) {
             throw new NotFoundException(NOT_EVENTS);
         }
-        final Events updatedEvents = Stream.<Pair<Predicate<UpdateEventsUserRequest>, Consumer<Events>>>of(
-                        Pair.of(req -> req.getAnnotation() != null, evt -> evt.setAnnotation(updateRequest.getAnnotation())),
-                        Pair.of(req -> req.getDescription() != null, evt -> evt.setDescription(updateRequest.getDescription())),
-                        Pair.of(req -> req.getCategory() != null, evt -> evt.setCategories(CategoriesMapper.getInstance()
-                                .toCategory(updateRequest.getCategory()))),
-                        Pair.of(req -> req.getEventDate() != null, evt -> evt.setEventDate(updateRequest.getEventDate())),
-                        Pair.of(req -> req.getLocation() != null, evt -> evt.setPaid(updateRequest.getPaid())),
-                        Pair.of(req -> req.getParticipantLimit() != null, evt -> evt.setParticipantLimit(updateRequest
-                                .getParticipantLimit())),
-                        Pair.of(req -> req.getRequestModeration() != null, evt -> evt.setRequestModeration(updateRequest
-                                .getRequestModeration())),
-                        Pair.of(req -> req.getStateAction() != null, evt -> {
-                            if (StateUserAction.SEND_TO_REVIEW.equals(updateRequest.getStateAction())) {
-                                evt.setState(EventState.PENDING);
-                            } else if (StateUserAction.CANCEL_REVIEW.equals(updateRequest.getStateAction())) {
-                                evt.setState(EventState.CANCELED);
-                            }
-                        }),
-                        Pair.of(req -> req.getTitle() != null, evt -> evt.setTitle(updateRequest.getTitle()))
-                ).filter(pair -> pair.getFirst().test(updateRequest))
-                .findFirst()
-                .map(pair -> {
-                    pair.getSecond().accept(eventToUpdate);
-                    return eventsRepository.save(eventToUpdate);
-                })
-                .orElseThrow(IllegalArgumentException::new);
+        
+        // Apply all updates, not just the first one
+        if (updateRequest.getAnnotation() != null) {
+            eventToUpdate.setAnnotation(updateRequest.getAnnotation());
+        }
+        if (updateRequest.getDescription() != null) {
+            eventToUpdate.setDescription(updateRequest.getDescription());
+        }
+        if (updateRequest.getCategory() != null) {
+            eventToUpdate.setCategories(CategoriesMapper.getInstance().toCategory(updateRequest.getCategory()));
+        }
+        if (updateRequest.getEventDate() != null) {
+            eventToUpdate.setEventDate(updateRequest.getEventDate());
+        }
+        if (updateRequest.getLocation() != null) {
+            eventToUpdate.setLocation(updateRequest.getLocation());
+        }
+        if (updateRequest.getPaid() != null) {
+            eventToUpdate.setPaid(updateRequest.getPaid());
+        }
+        if (updateRequest.getParticipantLimit() != null) {
+            eventToUpdate.setParticipantLimit(updateRequest.getParticipantLimit());
+        }
+        if (updateRequest.getRequestModeration() != null) {
+            eventToUpdate.setRequestModeration(updateRequest.getRequestModeration());
+        }
+        if (updateRequest.getStateAction() != null) {
+            if (StateUserAction.SEND_TO_REVIEW.equals(updateRequest.getStateAction())) {
+                eventToUpdate.setState(EventState.PENDING);
+            } else if (StateUserAction.CANCEL_REVIEW.equals(updateRequest.getStateAction())) {
+                eventToUpdate.setState(EventState.CANCELED);
+            }
+        }
+        if (updateRequest.getTitle() != null) {
+            eventToUpdate.setTitle(updateRequest.getTitle());
+        }
+        
+        final Events updatedEvents = eventsRepository.save(eventToUpdate);
         return EventsMapper.getInstance().toEventFullDto(updatedEvents, this.getViews(List.of(updatedEvents)));
     }
 
@@ -216,6 +231,9 @@ public class EventsServiceImpl implements EventsService {
             eventsToUpdate.setEventDate(updateRequest.getEventDate());
         }
         if (updateRequest.getLocation() != null) {
+            eventsToUpdate.setLocation(updateRequest.getLocation());
+        }
+        if (updateRequest.getPaid() != null) {
             eventsToUpdate.setPaid(updateRequest.getPaid());
         }
         if (updateRequest.getParticipantLimit() != null) {
@@ -235,12 +253,13 @@ public class EventsServiceImpl implements EventsService {
     @Override
     public EventsRequestStatusUpdateResult changeRequestStatus(Long userId, Long eventId,
                                                                EventsRequestStatusUpdateRequest statusUpdateRequest) {
-        usersRepository.findById(userId).orElseThrow(RuntimeException::new);
-        Events events = eventsRepository.findById(eventId).orElseThrow(RuntimeException::new);
+        usersRepository.findById(userId).orElseThrow(() -> new NotFoundException(NOT_USER));
+        Events events = eventsRepository.findById(eventId).orElseThrow(() -> new NotFoundException(NOT_EVENTS));
         EventsRequestStatusUpdateResult result = new EventsRequestStatusUpdateResult();
         List<ParticipationRequests> allPendingRequestsLeftUnprocessed = new ArrayList<>();
         for (Long requestId : statusUpdateRequest.getRequestIds()) {
-            ParticipationRequests request = requestsRepository.findById(requestId).orElseThrow(RuntimeException::new);
+            ParticipationRequests request = requestsRepository.findById(requestId)
+                    .orElseThrow(() -> new NotFoundException("Заявка на участие не найдена."));
 
             if (request.getStatus() != ParticipationRequestsStatus.PENDING) {
                 throw new ConflictException("Невозможно изменить статус запроса.");

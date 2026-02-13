@@ -8,7 +8,7 @@ import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "HITS", schema = "public")
+@Table(name = "HITS")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Setter
 @Getter
@@ -27,6 +27,6 @@ public class EndpointHit {
     @NotBlank
     @Column(length = 50)
     String ip;
-    @Column(updatable = false)
+    @Column(name = "\"timestamp\"", updatable = false)
     LocalDateTime timestamp;
 }
