@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @Getter
-public final class StatsClient extends BaseClient {
+public class StatsClient extends BaseClient {
 
     private final String applicationUrl;
     private final String statsServiceUrl;
@@ -34,8 +34,8 @@ public final class StatsClient extends BaseClient {
     private final HttpClient httpClient;
 
     @Autowired
-    public StatsClient(@Value("http://localhost:9090") String applicationUrl,
-                       @Value("http://stats-server:9090") String statsServiceUrl,
+    public StatsClient(@Value("${application.url:http://localhost:8080}") String applicationUrl,
+                       @Value("${stats-service.url:http://localhost:9090}") String statsServiceUrl,
                        ObjectMapper jsonMapper, RestTemplateBuilder builder) {
         super(builder.uriTemplateHandler(new DefaultUriBuilderFactory(statsServiceUrl))
                 .requestFactory(HttpComponentsClientHttpRequestFactory::new)
@@ -70,6 +70,9 @@ public final class StatsClient extends BaseClient {
                 .queryParam("end", LocalDateTime.now().format(formatter)
                 ).build();
         ViewStatsDto[] stats = rest.getForObject(uri.toString(), ViewStatsDto[].class);
+        if (stats == null || stats.length == 0) {
+            return new ArrayList<>();
+        }
         return Arrays.stream(stats).collect(Collectors.toUnmodifiableList());
     }
 }
