@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ public class NewEventsDto {
     private LocalDateTime eventDate;
     private Location location;
     private Boolean paid;
+    @Min(value = 0, message = "participantLimit must be >= 0")
     private Integer participantLimit;
     private Boolean requestModeration;
     @NotBlank(message = "title is required")

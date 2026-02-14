@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.ControllerLog;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.Collection;
 
@@ -35,7 +36,7 @@ public class AdminEventsController {
 
     @PatchMapping("/{eventId}")
     public EventsFullDto updateEvent(@PathVariable Long eventId,
-                                     @RequestBody UpdateEventsAdminRequest updateRequest, HttpServletRequest request) {
+                                     @RequestBody @Valid UpdateEventsAdminRequest updateRequest, HttpServletRequest request) {
         log.info("{}", ControllerLog.createUrlInfo(request));
         return eventsService.updateEventByAdmin(eventId, updateRequest);
     }
