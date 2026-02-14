@@ -9,7 +9,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.stats.dto.EndpointHitDto;
 import ru.practicum.stats.dto.ViewStatsDto;
-import ru.practicum.stats.server.mapper.EndpointHitMapper;
 import ru.practicum.stats.server.model.EndpointHit;
 
 import java.time.LocalDateTime;

@@ -153,7 +153,7 @@ public class EventsServiceImpl implements EventsService {
         if (!userId.equals(eventToUpdate.getInitiator().getId())) {
             throw new NotFoundException(NOT_EVENTS);
         }
-        
+
         // Apply all updates, not just the first one
         if (updateRequest.getAnnotation() != null) {
             eventToUpdate.setAnnotation(updateRequest.getAnnotation());
@@ -189,7 +189,7 @@ public class EventsServiceImpl implements EventsService {
         if (updateRequest.getTitle() != null) {
             eventToUpdate.setTitle(updateRequest.getTitle());
         }
-        
+
         final Events updatedEvents = eventsRepository.save(eventToUpdate);
         return EventsMapper.getInstance().toEventFullDto(updatedEvents, this.getViews(List.of(updatedEvents)));
     }
