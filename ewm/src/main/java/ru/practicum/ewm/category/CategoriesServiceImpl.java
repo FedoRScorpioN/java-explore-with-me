@@ -32,7 +32,7 @@ public class CategoriesServiceImpl implements CategoriesService {
     @Override
     public Collection<CategoriesDto> findCategories(Integer from, Integer size) {
         return CategoriesMapper.getInstance().toCategoryDto(categoriesRepository
-                .findAll(PageRequest.of(from, size)).getContent());
+                .findAll(PageRequest.of(from / size, size)).getContent());
     }
 
     @Override

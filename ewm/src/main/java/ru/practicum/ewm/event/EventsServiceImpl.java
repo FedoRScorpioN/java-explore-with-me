@@ -37,6 +37,9 @@ public class EventsServiceImpl implements EventsService {
 
     @Override
     public Map<Long, Long> getViews(Collection<Events> events) {
+        if (events == null || events.isEmpty()) {
+            return java.util.Collections.emptyMap();
+        }
         List<String> uris = events.stream()
                 .map(Events::getId)
                 .map(id -> "/events/" + id.toString())
@@ -82,7 +85,7 @@ public class EventsServiceImpl implements EventsService {
                                                 LocalDateTime rangeEnd,
                                                 Integer from,
                                                 Integer size) {
-        Pageable pageable = PageRequest.of(from, size);
+        Pageable pageable = PageRequest.of(from / size, size);
         QEvents qEvent = QEvents.events;
         BooleanExpression expression = qEvent.id.isNotNull();
         if (users != null && users.length > 0) {
@@ -117,7 +120,7 @@ public class EventsServiceImpl implements EventsService {
                                                  LocalDateTime rangeEnd,
                                                  Integer from,
                                                  Integer size) {
-        Pageable pageable = PageRequest.of(from, size);
+        Pageable pageable = PageRequest.of(from / size, size);
         QEvents qEvent = QEvents.events;
         BooleanExpression expression = qEvent.state.eq(EventState.PUBLISHED);
         if (text != null) {
@@ -328,7 +331,7 @@ public class EventsServiceImpl implements EventsService {
 
     @Override
     public Collection<EventsFullDto> findEvents(Long userId, Integer from, Integer size) {
-        Pageable pageable = PageRequest.of(from, size);
+        Pageable pageable = PageRequest.of(from / size, size);
         Collection<Events> events = eventsRepository.findByInitiatorId(userId, pageable);
         return EventsMapper.getInstance().toEventFullDto(events, this.getViews(events));
     }
