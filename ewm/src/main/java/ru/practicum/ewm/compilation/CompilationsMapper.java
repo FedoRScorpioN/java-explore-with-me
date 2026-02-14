@@ -36,7 +36,7 @@ public class CompilationsMapper {
     public Compilations toCompilation(NewCompilationsDto compilationDto, Collection<Events> events) {
         Compilations compilations = new Compilations();
         compilations.setTitle(compilationDto.getTitle());
-        compilations.setPinned(compilationDto.getPinned());
+        compilations.setPinned(compilationDto.getPinned() != null ? compilationDto.getPinned() : false);
         compilations.setEvents(events);
         return compilations;
     }

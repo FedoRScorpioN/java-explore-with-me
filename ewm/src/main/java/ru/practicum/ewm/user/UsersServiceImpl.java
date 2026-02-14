@@ -34,7 +34,7 @@ public class UsersServiceImpl implements UsersService {
 
     @Override
     public Collection<UsersDto> findUsers(List<Long> ids, Integer from, Integer size) {
-        Pageable pageable = PageRequest.of(from, size);
+        Pageable pageable = PageRequest.of(from / size, size);
         if (ids != null && ids.size() > 0) {
             return UsersMapper.getInstance().toUserDto(usersRepository.findByIdIn(ids, pageable));
         }

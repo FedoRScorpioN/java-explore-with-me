@@ -30,9 +30,9 @@ public class EventsMapper {
         events.setDescription(eventDto.getDescription());
         events.setEventDate(eventDto.getEventDate());
         events.setLocation(eventDto.getLocation());
-        events.setPaid(eventDto.getPaid());
-        events.setParticipantLimit(eventDto.getParticipantLimit());
-        events.setRequestModeration(eventDto.getRequestModeration());
+        events.setPaid(eventDto.getPaid() != null ? eventDto.getPaid() : false);
+        events.setParticipantLimit(eventDto.getParticipantLimit() != null ? eventDto.getParticipantLimit() : 0);
+        events.setRequestModeration(eventDto.getRequestModeration() != null ? eventDto.getRequestModeration() : true);
         events.setTitle(eventDto.getTitle());
         events.setInitiator(initiator);
         events.setState(EventState.PENDING);

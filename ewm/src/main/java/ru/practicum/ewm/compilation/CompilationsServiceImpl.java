@@ -25,12 +25,11 @@ public class CompilationsServiceImpl implements CompilationsService {
 
     @Override
     public Collection<CompilationsDto> findCompilations(Boolean pinned, Integer from, Integer size) {
-        Pageable pageable = PageRequest.of(from, size);
+        Pageable pageable = PageRequest.of(from / size, size);
         Collection<Compilations> compilations = pinned == null ? compilationsRepository.findAll(pageable).getContent()
                 : compilationsRepository.findByPinned(pinned, pageable);
         Set<Events> events = compilations.stream()
-                .flatMap(c -> c.getEvents()
-                        .stream())
+                .flatMap(c -> c.getEvents() != null ? c.getEvents().stream() : java.util.stream.Stream.empty())
                 .collect(Collectors.toSet());
         Map<Long, Long> views = eventsService.getViews(events);
         return CompilationsMapper.getInstance().toCompilationDto(compilations, views);
@@ -38,7 +37,9 @@ public class CompilationsServiceImpl implements CompilationsService {
 
     @Override
     public CompilationsDto addCompilation(NewCompilationsDto compilationDto) {
-        Collection<Events> events = eventsRepository.findAllById(Arrays.asList(compilationDto.getEvents()));
+        Collection<Events> events = compilationDto.getEvents() != null
+                ? eventsRepository.findAllById(Arrays.asList(compilationDto.getEvents()))
+                : java.util.Collections.emptyList();
         Compilations compilations = CompilationsMapper.getInstance().toCompilation(compilationDto, events);
         Map<Long, Long> views = eventsService.getViews(compilations.getEvents());
         return CompilationsMapper.getInstance().toCompilationDto(compilationsRepository.save(compilations), views);
@@ -55,7 +56,8 @@ public class CompilationsServiceImpl implements CompilationsService {
     public CompilationsDto findCompilation(Long id) {
         Compilations compilations = compilationsRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND));
-        Map<Long, Long> views = eventsService.getViews(compilations.getEvents());
+        Collection<Events> events = compilations.getEvents() != null ? compilations.getEvents() : java.util.Collections.emptyList();
+        Map<Long, Long> views = eventsService.getViews(events);
         return CompilationsMapper.getInstance().toCompilationDto(compilations, views);
     }
 
@@ -74,7 +76,10 @@ public class CompilationsServiceImpl implements CompilationsService {
             }
             compilationToUpdate.setEvents(newEvents);
         }
-        Map<Long, Long> views = eventsService.getViews(compilationToUpdate.getEvents());
+        Collection<Events> events = compilationToUpdate.getEvents() != null
+                ? compilationToUpdate.getEvents()
+                : java.util.Collections.emptyList();
+        Map<Long, Long> views = eventsService.getViews(events);
         return CompilationsMapper.getInstance().toCompilationDto(compilationsRepository.save(compilationToUpdate), views);
     }
 }

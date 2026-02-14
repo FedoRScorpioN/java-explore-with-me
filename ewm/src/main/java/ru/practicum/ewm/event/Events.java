@@ -53,13 +53,13 @@ public class Events {
     @Embedded
     private Location location;
     @Column(nullable = false)
-    private Boolean paid;
+    private Boolean paid = false;
     @Column(nullable = false)
-    private Integer participantLimit;
+    private Integer participantLimit = 0;
     @Column
     private LocalDateTime publishedOn;
-    @Column
-    private Boolean requestModeration;
+    @Column(nullable = false)
+    private Boolean requestModeration = true;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 100)
     private EventState state;
