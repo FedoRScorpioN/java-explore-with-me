@@ -54,7 +54,7 @@ public class PrivateEventsController {
     @PatchMapping("/{eventsId}")
     public EventsFullDto patchEvent(@PathVariable Long userId,
                                     @PathVariable Long eventsId,
-                                    @RequestBody UpdateEventsUserRequest updateEventsUserRequest,
+                                    @RequestBody @Valid UpdateEventsUserRequest updateEventsUserRequest,
                                     HttpServletRequest request) {
         log.info("{}", ControllerLog.createUrlInfo(request));
         return eventsService.patchEventByInitiator(userId, eventsId, updateEventsUserRequest);

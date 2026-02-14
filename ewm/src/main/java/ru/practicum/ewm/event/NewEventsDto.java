@@ -5,14 +5,18 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Setter
 @Getter
 public class NewEventsDto {
-    @NotBlank
+    @NotBlank(message = "annotation is required")
+    @Size(min = 20, max = 2000, message = "annotation size must be between 20 and 2000")
     private String annotation;
     private Long category;
+    @NotBlank(message = "description is required")
+    @Size(min = 20, max = 7000, message = "description size must be between 20 and 7000")
     private String description;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
@@ -20,5 +24,7 @@ public class NewEventsDto {
     private Boolean paid;
     private Integer participantLimit;
     private Boolean requestModeration;
+    @NotBlank(message = "title is required")
+    @Size(min = 3, max = 120, message = "title size must be between 3 and 120")
     private String title;
 }
