@@ -6,7 +6,8 @@ services:
     ports:
       - "9090:9090"
     depends_on:
-      - statsDB
+      statsDB:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://statsDB:5432/statsDB
       - SPRING_DATASOURCE_USERNAME=admin
@@ -21,6 +22,11 @@ services:
       - POSTGRES_DB=statsDB
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=password
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
 
   ewm-service:
     build: ./ewm
@@ -28,20 +34,28 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - stats-server
-      - ewmDB
+      stats-server:
+        condition: service_started
+      ewmDB:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewmDB:5432/ewmDB
       - SPRING_DATASOURCE_USERNAME=admin
       - SPRING_DATASOURCE_PASSWORD=password
-      - EWM-STATS-SERVICE_URI=http://stats-server:9090
+      - STATS_SERVICE_URL=http://stats-server:9090
+      - APPLICATION_URL=ewm-service
 
   ewmDB:
     image: postgres:14-alpine
     container_name: ewmDB
     ports:
-      - "6542:5433"
+      - "6542:5432"
     environment:
       - POSTGRES_DB=ewmDB
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=password
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
